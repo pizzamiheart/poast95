@@ -1,0 +1,286 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+@layer base {
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: #008080;
+    color: #000;
+    overflow: hidden;
+  }
+}
+
+.desktop {
+  min-height: calc(100vh - 32px);
+  padding: 20px;
+  background: #008080;
+  position: relative;
+}
+
+.folder {
+  width: 75px;
+  text-align: center;
+  cursor: pointer;
+  margin: 10px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+  padding: 4px;
+  position: relative;
+}
+
+.folder:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.folder:hover span {
+  background: #000080;
+  color: white;
+  border: 1px dotted #D1AE87;
+  padding: 1px 2px;
+}
+
+.folder span {
+  padding: 1px 2px;
+  border: 1px solid transparent;
+}
+
+.folder-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  position: relative;
+  padding: 4px;
+}
+
+.folder-icon.win95-folder {
+  background: #c0c0c0;
+  border-top: 1px solid #ffffff;
+  border-left: 1px solid #ffffff;
+  border-right: 1px solid #808080;
+  border-bottom: 1px solid #808080;
+  box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf;
+}
+
+.folder-icon.win95-folder svg {
+  color: #000080;
+  filter: drop-shadow(1px 1px 0 white);
+}
+
+.folder-icon.win95-computer {
+  background: #c0c0c0;
+  border-top: 1px solid #ffffff;
+  border-left: 1px solid #ffffff;
+  border-right: 1px solid #808080;
+  border-bottom: 1px solid #808080;
+  box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf;
+}
+
+.folder-icon.win95-computer svg {
+  color: #000080;
+  filter: drop-shadow(1px 1px 0 white);
+}
+
+.window {
+  background: #c0c0c0;
+  border: 2px solid #fff;
+  border-right-color: #848484;
+  border-bottom-color: #848484;
+  box-shadow: 1px 1px 0 #000;
+  min-width: 400px;
+  user-select: none;
+  z-index: 1000;
+}
+
+.window-title {
+  background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.window-content {
+  padding: 12px;
+  user-select: text;
+}
+
+.window-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 8px;
+  background: white;
+  border: 2px solid #848484;
+  border-right-color: #fff;
+  border-bottom-color: #fff;
+  resize: none;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+.window-textarea:disabled {
+  background: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.window-button {
+  background: #c0c0c0;
+  border: 2px solid #fff;
+  border-right-color: #848484;
+  border-bottom-color: #848484;
+  padding: 4px 12px;
+  color: #000;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.window-button:disabled {
+  color: #848484;
+  cursor: not-allowed;
+}
+
+.window-button:active:not(:disabled) {
+  border: 2px solid #848484;
+  border-right-color: #fff;
+  border-bottom-color: #fff;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 20px;
+  background: white;
+  border: 2px solid #848484;
+  border-right-color: #fff;
+  border-bottom-color: #fff;
+  padding: 2px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+}
+
+.close-button {
+  background: #c0c0c0;
+  border: 2px solid #fff;
+  border-right-color: #848484;
+  border-bottom-color: #848484;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 2px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #000;
+}
+
+.close-button:active {
+  border: 2px solid #848484;
+  border-right-color: #fff;
+  border-bottom-color: #fff;
+}
+
+.taskbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: #c0c0c0;
+  border-top: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  z-index: 1001;
+}
+
+.start-button {
+  background: #c0c0c0;
+  border: 2px solid #fff;
+  border-right-color: #848484;
+  border-bottom-color: #848484;
+  padding: 2px 8px;
+  margin-right: 8px;
+  font-weight: bold;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.start-button:focus {
+  outline: 1px dotted #000;
+  outline-offset: -4px;
+}
+
+.posts-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.post-file {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: white;
+  border: 1px solid #848484;
+}
+
+.post-file.error {
+  background: #fff0f0;
+  border-color: #ff0000;
+}
+
+.post-icon {
+  flex-shrink: 0;
+  color: #000080;
+}
+
+.post-file-content {
+  flex-grow: 1;
+}
+
+.post-file-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.post-content {
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+
+.post-error {
+  margin-top: 4px;
+  padding: 4px;
+  background: #ffe0e0;
+  border: 1px solid #ff0000;
+  color: #ff0000;
+  font-size: 12px;
+  border-radius: 2px;
+}
+
+.view-on-twitter {
+  color: #000080;
+  display: flex;
+  align-items: center;
+}
+
+.view-on-twitter:hover {
+  opacity: 0.8;
+}
