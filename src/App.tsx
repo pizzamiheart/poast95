@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Folder, Monitor, X, ExternalLink, FileText } from 'lucide-react';
-import { postTweet } from './lib/api';
+import { Folder, Monitor, X, ExternalLink, FileText, LogIn } from 'lucide-react';
+import { postTweet, loginWithTwitter, handleTwitterCallback } from './lib/api';
+import { useAuthStore } from './lib/store';
 
 interface Post {
   id: string;
@@ -11,45 +12,7 @@ interface Post {
   error?: string;
 }
 
-const InfoWindow = ({ onClose }: { onClose: () => void }) => (
-  <motion.div
-    initial={{ scale: 0.95, opacity: 0 }}
-    animate={{ scale: 1, opacity: 1 }}
-    exit={{ scale: 0.95, opacity: 0 }}
-    className="window fixed"
-    style={{ 
-      left: '40%', 
-      top: '30%',
-      width: '300px'
-    }}
-  >
-    <div className="window-title">
-      <span className="text-white font-semibold">About Poast 95</span>
-      <div className="flex">
-        <button className="close-button" onClick={onClose}>
-          <X size={12} />
-        </button>
-      </div>
-    </div>
-    <div className="window-content">
-      <div className="text-sm space-y-4">
-        <p>Welcome to Poast 95 - your retro-styled Twitter composer!</p>
-        <p>This Windows 95-inspired app lets you compose and post tweets in a nostalgic environment. Experience social media like it's 1995!</p>
-        <p className="text-xs text-gray-600">Version 1.0.0</p>
-      </div>
-    </div>
-  </motion.div>
-);
-
-const PostWindow = ({ 
-  currentPost, 
-  setCurrentPost, 
-  handlePost, 
-  handleKeyDown, 
-  charCount,
-  isPosting,
-  onClose 
-}: { 
+interface PostWindowProps {
   currentPost: string;
   setCurrentPost: (value: string) => void;
   handlePost: () => void;
@@ -57,6 +20,18 @@ const PostWindow = ({
   charCount: number;
   isPosting: boolean;
   onClose: () => void;
+  isAuthenticated: boolean;
+}
+
+const PostWindow: React.FC<PostWindowProps> = ({
+  currentPost,
+  setCurrentPost,
+  handlePost,
+  handleKeyDown,
+  charCount,
+  isPosting,
+  onClose,
+  isAuthenticated
 }) => (
   <div className="fixed inset-0 flex items-center justify-center">
     <motion.div
@@ -74,44 +49,64 @@ const PostWindow = ({
         </div>
       </div>
       <div className="window-content">
-        <textarea
-          autoFocus
-          value={currentPost}
-          onChange={(e) => setCurrentPost(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="What's on your mind? (Ctrl/Cmd + Enter to post)"
-          className="window-textarea"
-          maxLength={280}
-          disabled={isPosting}
-        />
-        <div className="text-right text-sm text-gray-600 mt-1">
-          {charCount}/280
-        </div>
-        <div className="mt-4 space-y-2">
-          <button 
-            className="window-button w-full"
-            onClick={handlePost}
-            disabled={isPosting || charCount === 0}
-          >
-            {isPosting ? 'Posting...' : 'Post'}
-          </button>
-          {isPosting && (
-            <div className="progress-bar-container">
-              <motion.div 
-                className="progress-bar"
-                initial={{ width: 0 }}
-                animate={{ width: '100%' }}
-                transition={{ duration: 2, ease: 'linear' }}
-              />
+        {isAuthenticated ? (
+          <>
+            <textarea
+              autoFocus
+              value={currentPost}
+              onChange={(e) => setCurrentPost(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="What's on your mind? (Ctrl/Cmd + Enter to post)"
+              className="window-textarea"
+              maxLength={280}
+              disabled={isPosting}
+            />
+            <div className="text-right text-sm text-gray-600 mt-1">
+              {charCount}/280
             </div>
-          )}
-        </div>
+            <div className="mt-4 space-y-2">
+              <button 
+                className="window-button w-full"
+                onClick={handlePost}
+                disabled={isPosting || charCount === 0}
+              >
+                {isPosting ? 'Posting...' : 'Post'}
+              </button>
+              {isPosting && (
+                <div className="progress-bar-container">
+                  <motion.div 
+                    className="progress-bar"
+                    initial={{ width: 0 }}
+                    animate={{ width: '100%' }}
+                    transition={{ duration: 2, ease: 'linear' }}
+                  />
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-4">
+            <p className="mb-4">Please sign in to post tweets</p>
+            <button 
+              className="window-button"
+              onClick={() => loginWithTwitter()}
+            >
+              <LogIn size={16} className="mr-2 inline" />
+              Sign in with Twitter
+            </button>
+          </div>
+        )}
       </div>
     </motion.div>
   </div>
 );
 
-const PostsWindow = ({ posts, onClose }: { posts: Post[], onClose: () => void }) => (
+interface PostsWindowProps {
+  posts: Post[];
+  onClose: () => void;
+}
+
+const PostsWindow: React.FC<PostsWindowProps> = ({ posts, onClose }) => (
   <motion.div
     initial={{ scale: 0.95, opacity: 0 }}
     animate={{ scale: 1, opacity: 1 }}
@@ -178,7 +173,42 @@ const PostsWindow = ({ posts, onClose }: { posts: Post[], onClose: () => void })
   </motion.div>
 );
 
+interface InfoWindowProps {
+  onClose: () => void;
+}
+
+const InfoWindow: React.FC<InfoWindowProps> = ({ onClose }) => (
+  <motion.div
+    initial={{ scale: 0.95, opacity: 0 }}
+    animate={{ scale: 1, opacity: 1 }}
+    exit={{ scale: 0.95, opacity: 0 }}
+    className="window fixed"
+    style={{ 
+      left: '40%', 
+      top: '30%',
+      width: '300px'
+    }}
+  >
+    <div className="window-title">
+      <span className="text-white font-semibold">About Poast 95</span>
+      <div className="flex">
+        <button className="close-button" onClick={onClose}>
+          <X size={12} />
+        </button>
+      </div>
+    </div>
+    <div className="window-content">
+      <div className="text-sm space-y-4">
+        <p>Welcome to Poast 95 - your retro-styled Twitter composer!</p>
+        <p>This Windows 95-inspired app lets you compose and post tweets in a nostalgic environment. Experience social media like it's 1995!</p>
+        <p className="text-xs text-gray-600">Version 1.0.0</p>
+      </div>
+    </div>
+  </motion.div>
+);
+
 function App() {
+  const { isAuthenticated, username, clearAuth } = useAuthStore();
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentPost, setCurrentPost] = useState('');
   const [isPostWindowOpen, setIsPostWindowOpen] = useState(false);
@@ -186,6 +216,20 @@ function App() {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [charCount, setCharCount] = useState(0);
+
+  useEffect(() => {
+    // Handle OAuth callback
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+    
+    if (code && state) {
+      handleTwitterCallback(code, state)
+        .catch(error => console.error('Failed to handle Twitter callback:', error));
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     setCharCount(currentPost.length);
@@ -270,6 +314,7 @@ function App() {
               charCount={charCount}
               isPosting={isPosting}
               onClose={() => setIsPostWindowOpen(false)}
+              isAuthenticated={isAuthenticated}
             />
           )}
           {isPostsWindowOpen && (
@@ -291,10 +336,34 @@ function App() {
       <div className="taskbar">
         <button 
           className="start-button"
-          onClick={() => setIsPostWindowOpen(true)}
+          onClick={() => {
+            if (!isAuthenticated) {
+              loginWithTwitter();
+            } else {
+              setIsPostWindowOpen(true);
+            }
+          }}
         >
-          Start
+          {isAuthenticated ? (
+            <>
+              <span>Start</span>
+              <span className="text-sm ml-2">(@{username})</span>
+            </>
+          ) : (
+            <>
+              <LogIn size={16} className="mr-2" />
+              <span>Sign in with Twitter</span>
+            </>
+          )}
         </button>
+        {isAuthenticated && (
+          <button 
+            className="taskbar-button"
+            onClick={clearAuth}
+          >
+            Sign Out
+          </button>
+        )}
       </div>
     </>
   );

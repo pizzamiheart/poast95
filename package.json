@@ -12,14 +12,17 @@
   "dependencies": {
     "@netlify/functions": "^2.6.0",
     "@radix-ui/react-toast": "^1.1.5",
+    "cookie": "^0.6.0",
     "framer-motion": "^11.0.8",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "twitter-api-v2": "1.12.0"
+    "twitter-api-v2": "1.12.0",
+    "zustand": "^4.5.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
+    "@types/cookie": "^0.6.0",
     "@types/node": "^20.11.24",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
